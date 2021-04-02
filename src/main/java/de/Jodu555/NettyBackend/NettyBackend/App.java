@@ -55,8 +55,23 @@ public class App {
 		this.nettyBackend = new NettyBackend(90, true, false, false);
 
 		this.nettyBackend.setResponseType(ResponseType.JSON);
+		ArrayList<String> list = new ArrayList<>();
+		list.add("Hallo");
+		
+		nettyBackend.registerEndpoint("/list", new AbstractRequest() {
+			
+			@Override
+			public AbstractResponse onRequest(Request req, AbstractResponse _res) {
+				JsonResponse res = (JsonResponse)_res;
+				
+				res.getJsonUtils().add("list", list);
+				
+				return res;
+			}
+		});
 
-
+		list.add("Sooderso");
+		
 		nettyBackend.registerEndpoint("/user/{:?name}/profile/settings", new AbstractRequest() {
 
 			@Override

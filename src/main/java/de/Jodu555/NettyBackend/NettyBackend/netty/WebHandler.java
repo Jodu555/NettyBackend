@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.text.StringEscapeUtils;
 
+import com.google.gson.Gson;
+
 import de.Jodu555.NettyBackend.NettyBackend.App;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractRequest;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractResponse;
@@ -50,6 +52,7 @@ public class WebHandler extends ChannelInboundHandlerAdapter {
 			long income = System.currentTimeMillis();
 			FullHttpRequest fullHttpRequest = (FullHttpRequest) object;
 			Request req = generateRequest(ctx, fullHttpRequest);
+			System.out.println(new Gson().toJson(req));
 
 			AbstractResponse response = null;
 			AbstractWebHandler handler = null;

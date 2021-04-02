@@ -39,7 +39,7 @@ public class JsonWebHandler extends AbstractWebHandler {
 	}
 
 	public AbstractResponse onRequest(Request req, AbstractResponse response) {
-		NettyEndpoint endpoint = getBackend().getEndpoints().get(req.getUri());
+		NettyEndpoint endpoint = null;
 
 		for (String endpoints : getBackend().getEndpoints().keySet()) {
 			if (matchEndPoint(req.getUri(), endpoints, req)) {

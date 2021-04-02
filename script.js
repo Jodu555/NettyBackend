@@ -5,7 +5,7 @@ let mondaySubjects = [{
         time: "08:30"
     },
     {
-        subject: "Mathe",
+        subject: "Math",
         time: "09:40"
     }
 ];
