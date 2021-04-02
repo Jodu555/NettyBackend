@@ -119,6 +119,7 @@ public class WebHandler extends ChannelInboundHandlerAdapter {
 		ReferenceCountUtil.release(object);
 
 	}
+	
 
 	private Request generateRequest(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest) {
 		QueryStringDecoder queryStringDecoder = new QueryStringDecoder(fullHttpRequest.getUri());

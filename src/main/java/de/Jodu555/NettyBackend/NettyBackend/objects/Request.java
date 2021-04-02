@@ -9,6 +9,7 @@ public class Request {
 	private String uri;
 	private String authId;
 	private HashMap<String, List<String>> parameters;
+	private HashMap<String, String> variables;
 	
 	public Request(String ip, String uri, HashMap<String, List<String>> parameters) {
 		this(ip, uri, null, parameters);
@@ -19,6 +20,7 @@ public class Request {
 		this.uri = uri;
 		this.authId = authId;
 		this.parameters = parameters;
+		this.variables =  new HashMap<String, String>();
 	}
 	
 	public String getIp() {
@@ -39,6 +41,10 @@ public class Request {
 	
 	public HashMap<String, List<String>> getParameters() {
 		return parameters;
+	}
+	
+	public HashMap<String, String> getVariables() {
+		return variables;
 	}
 	
 }

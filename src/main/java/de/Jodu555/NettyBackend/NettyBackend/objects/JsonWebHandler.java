@@ -40,7 +40,14 @@ public class JsonWebHandler extends AbstractWebHandler {
 
 	public AbstractResponse onRequest(Request req, AbstractResponse response) {
 		NettyEndpoint endpoint = getBackend().getEndpoints().get(req.getUri());
-		JsonResponse jsonResponse = (JsonResponse)response;
+
+		for (String endpoints : getBackend().getEndpoints().keySet()) {
+			if (matchEndPoint(req.getUri(), endpoints, req)) {
+				endpoint = getBackend().getEndpoints().get(endpoints);
+			}
+		}
+
+		JsonResponse jsonResponse = (JsonResponse) response;
 		if (endpoint != null) {
 
 			// Check if Needs Auth
@@ -65,20 +72,19 @@ public class JsonWebHandler extends AbstractWebHandler {
 				}
 
 			} else {
-				jsonResponse = (JsonResponse) endpoint.getRequest().onRequest(req,  response);
-				
+				jsonResponse = (JsonResponse) endpoint.getRequest().onRequest(req, response);
+
 			}
 		} else {
 			jsonResponse.setSuccess(false);
 			jsonResponse.getJsonUtils().add("message", "No Endpoint found at " + req.getUri());
 		}
-		
-		if(jsonResponse == null)
+
+		if (jsonResponse == null)
 			jsonResponse = new JsonResponse();
-			
-		
+
 		jsonResponse.getJsonUtils().add("success", jsonResponse.isSuccess());
-		
+
 		return jsonResponse;
 	}
 

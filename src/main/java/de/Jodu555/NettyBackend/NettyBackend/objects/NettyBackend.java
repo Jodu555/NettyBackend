@@ -84,7 +84,6 @@ public class NettyBackend {
 		this.defaultEndpoint = defaultEndpoint;
 	}
 	
-	
 	public void registerFullEndpoint(String endpoint, AbstractRequest request) {
 		abstractRegisterEndpoint(endpoint, new NettyEndpoint(request, 0));
 	}

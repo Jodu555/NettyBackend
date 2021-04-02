@@ -35,7 +35,8 @@ public class App {
 	// TODO Add Validator Like: https://joi.dev/api/?v=17.4.0
 
 	// Link port via Apache Hosts:
-	// But install Commands before: sudo a2enmod proxy && sudo a2enmod proxy_http && sudo service apache2 restart
+	// But install Commands before: sudo a2enmod proxy && sudo a2enmod proxy_http &&
+	// sudo service apache2 restart
 //	<VirtualHost *:80> 
 //	  ProxyPreserveHost On
 //	  ProxyRequests Off
@@ -53,29 +54,17 @@ public class App {
 		instance = this;
 		this.nettyBackend = new NettyBackend(90, true, false, false);
 
-		this.nettyBackend.setResponseType(ResponseType.HTML);
+		this.nettyBackend.setResponseType(ResponseType.JSON);
 
-		this.nettyBackend.registerEndpoint("/", new AbstractRequest() {
 
-			@Override
-			public AbstractResponse onRequest(Request req, AbstractResponse response) {
-				HTMLResponse htmlResponse = (HTMLResponse) response;
-
-				htmlResponse.setResponseFile(new File("test.html"));
-
-				return htmlResponse;
-			}
-		});
-
-		this.nettyBackend.registerEndpoint("/script.js", new AbstractRequest() {
+		nettyBackend.registerEndpoint("/user/{:?name}/profile/settings", new AbstractRequest() {
 
 			@Override
-			public AbstractResponse onRequest(Request req, AbstractResponse response) {
-				HTMLResponse htmlResponse = (HTMLResponse) response;
-
-				htmlResponse.setResponseFile(new File("script.js"));
-
-				return htmlResponse;
+			public AbstractResponse onRequest(Request req, AbstractResponse _response) {
+				JsonResponse response = (JsonResponse) _response;
+				response.setSuccess(true);
+				response.getJsonUtils().add("username", req.getVariables().get("name"));
+				return response;
 			}
 		});
 
