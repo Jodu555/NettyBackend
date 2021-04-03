@@ -51,7 +51,7 @@ public class NettyBackend {
 			return;
 		}
 		this.authenticationHandler = authenticationHandler;
-		registerFullEndpoint("/auth", new AbstractRequest() {
+		registerEndpoint("/auth", new AbstractRequest() {
 			
 			@Override
 			public AbstractResponse onRequest(Request req, AbstractResponse response) {
@@ -84,20 +84,20 @@ public class NettyBackend {
 		this.defaultEndpoint = defaultEndpoint;
 	}
 	
-	public void registerFullEndpoint(String endpoint, AbstractRequest request) {
-		abstractRegisterEndpoint(endpoint, new NettyEndpoint(request, 0));
-	}
-	
-	public void registerFullEndpoint(String endpoint, AbstractRequest request, int authorizationLevel) {
-		abstractRegisterEndpoint(endpoint, new NettyEndpoint(request, authorizationLevel));
-	}
-	
 	public void registerEndpoint(String endpoint, AbstractRequest request) {
-		abstractRegisterEndpoint(this.defaultEndpoint + endpoint, new NettyEndpoint(request, 0));
+		abstractRegisterEndpoint(endpoint, new NettyEndpoint(request, getResponseType(), 0));
 	}
 	
-	public void registerEndpoint(String endpoint, AbstractRequest request, int authorizationLevel) {
-		abstractRegisterEndpoint(this.defaultEndpoint + endpoint, new NettyEndpoint(request, authorizationLevel));
+	public void registerEndpoint(String endpoint, AbstractRequest request, ResponseType responseType) {
+		abstractRegisterEndpoint(endpoint, new NettyEndpoint(request, responseType, 0));
+	}
+	
+	public void registerAuthEndpoint(String endpoint, AbstractRequest request, int authorizationLevel) {
+		abstractRegisterEndpoint(endpoint, new NettyEndpoint(request, getResponseType(), authorizationLevel));
+	}
+	
+	public void registerAuthEndpoint(String endpoint, AbstractRequest request, ResponseType responseType, int authorizationLevel) {
+		abstractRegisterEndpoint(endpoint, new NettyEndpoint(request, responseType, authorizationLevel));
 	}
 	
 	private void abstractRegisterEndpoint(String path, NettyEndpoint endpoint)  {

@@ -52,31 +52,38 @@ public class WebHandler extends ChannelInboundHandlerAdapter {
 			long income = System.currentTimeMillis();
 			FullHttpRequest fullHttpRequest = (FullHttpRequest) object;
 			Request req = generateRequest(ctx, fullHttpRequest);
-			System.out.println(new Gson().toJson(req));
 
 			AbstractResponse response = null;
 			AbstractWebHandler handler = null;
 
-			if (backend.getResponseType() == ResponseType.JSON) {
-				handler = new JsonWebHandler(backend);
-			}
-			if (backend.getResponseType() == ResponseType.HTML) {
-				handler = new HTMLWebHandler(backend);
+			NettyEndpoint endpoint = null;
+			for (String path : backend.getEndpoints().keySet()) {
+				if (matchEndPoint(req, path))
+					endpoint = backend.getEndpoints().get(path);
 			}
 
+			if(endpoint != null) {
+				if (endpoint.getResponseType() == ResponseType.JSON) {
+					handler = new JsonWebHandler(backend);
+				}
+				if (endpoint.getResponseType() == ResponseType.HTML) {
+					handler = new HTMLWebHandler(backend);
+				}
+			} else {
+				handler = new JsonWebHandler(backend);
+			}
+			
 			String responseText = "";
 
 			if (handler != null) {
-				response = handler.process(req, response);
+				response = handler.process(req, response, endpoint);
 				responseText = handler.toResponseText(req, response);
 			} else {
 				responseText = "Error in processing Request the server maybe isn't setuped yet!";
 			}
 
-			
-			
 //			System.out.println(responseText);
-			
+
 			// HTTP_1_0
 
 			FullHttpResponse fullHttpResponse = null;
@@ -93,8 +100,12 @@ public class WebHandler extends ChannelInboundHandlerAdapter {
 			if (HttpHeaders.isKeepAlive(fullHttpRequest)) {
 				fullHttpResponse.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
 			}
-			
-			fullHttpResponse.headers().set(HttpHeaders.Names.CONTENT_TYPE, backend.getResponseType().getContentType());
+
+			if (endpoint != null && endpoint.getResponseType() != null) {
+				fullHttpResponse.headers().set(HttpHeaders.Names.CONTENT_TYPE, endpoint.getResponseType());
+			} else {
+				fullHttpResponse.headers().set(HttpHeaders.Names.CONTENT_TYPE, backend.getResponseType());
+			}
 
 			// ------------------ Cors - Start ------------------ \\
 			fullHttpRequest.headers().add(HttpHeaders.Names.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
@@ -122,7 +133,6 @@ public class WebHandler extends ChannelInboundHandlerAdapter {
 		ReferenceCountUtil.release(object);
 
 	}
-	
 
 	private Request generateRequest(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest) {
 		QueryStringDecoder queryStringDecoder = new QueryStringDecoder(fullHttpRequest.getUri());
@@ -141,6 +151,46 @@ public class WebHandler extends ChannelInboundHandlerAdapter {
 		String uri = parseuri.split(Pattern.quote("?"))[0];
 		Request req = new Request(ipAddress, uri, params);
 		return req;
+	}
+
+	public boolean matchEndPoint(Request req, String match) {
+		String path = req.getUri();
+		String[] pattern = match.split("/");
+		boolean output = false;
+		int i = 0;
+		try {
+			for (String string : path.split("/")) {
+				if (string.equals(pattern[i]) || pattern[i + 1].equals(string) || pattern[i].startsWith("{:")
+						|| pattern[i].startsWith("{:?")) {
+					if (pattern[i].startsWith("{:") && !pattern[i].startsWith("{:?")) {
+						String var = pattern[i].replaceFirst(Pattern.quote("{:"), "").replaceAll(Pattern.quote("}"),
+								"");
+						req.getVariables().put(var, string);
+						if (backend.isLogRequests())
+							System.out.println("Var declared: " + var + " as " + string);
+					} else if (pattern[i].startsWith("{:?")) {
+						String var = pattern[i].replaceFirst(Pattern.quote("{:?"), "").replaceAll(Pattern.quote("}"),
+								"");
+						if (pattern[i + 1].equals(string)) {
+							if (backend.isLogRequests())
+								System.out.println("Optional var could not be declared");
+						} else {
+							req.getVariables().put(var, string);
+							if (backend.isLogRequests())
+								System.out.println("Optional var declared: " + var + " as " + string);
+						}
+					}
+					output = true;
+				} else {
+					output = false;
+					break;
+				}
+				i++;
+			}
+		} catch (Exception e) {
+			return false;
+		}
+		return output;
 	}
 
 	@Override

@@ -67,6 +67,18 @@ public class App {
 				return response;
 			}
 		});
+		
+		nettyBackend.registerEndpoint("/index", new AbstractRequest() {
+			
+			@Override
+			public AbstractResponse onRequest(Request req, AbstractResponse _response) {
+				HTMLResponse response = (HTMLResponse)_response;
+				
+				response.setResponseFile(new File("test.html"));
+				
+				return response;
+			}
+		}, ResponseType.HTML);
 
 		this.nettyBackend.start();
 	}

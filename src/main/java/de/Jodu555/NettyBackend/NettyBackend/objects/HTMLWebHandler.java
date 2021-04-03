@@ -47,7 +47,7 @@ public class HTMLWebHandler extends AbstractWebHandler {
 		return null;
 	}
 
-	public AbstractResponse process(Request req, AbstractResponse response) {
+	public AbstractResponse process(Request req, AbstractResponse response, NettyEndpoint endpoint) {
 		boolean cont = true;
 		response = new HTMLResponse();
 		HTMLResponse htmlresponse = (HTMLResponse) response;
@@ -64,13 +64,12 @@ public class HTMLWebHandler extends AbstractWebHandler {
 
 		if (cont) {
 			htmlresponse.setSuccess(true);
-			htmlresponse = (HTMLResponse) onRequest(req, htmlresponse);
+			htmlresponse = (HTMLResponse) onRequest(req, htmlresponse, endpoint);
 		}
 		return htmlresponse;
 	}
 
-	public AbstractResponse onRequest(Request req, AbstractResponse response) {
-		NettyEndpoint endpoint = getBackend().getEndpoints().get(req.getUri());
+	public AbstractResponse onRequest(Request req, AbstractResponse response, NettyEndpoint endpoint) {
 		HTMLResponse htmlResponse = (HTMLResponse) response;
 		if (endpoint != null) {
 

@@ -16,7 +16,7 @@ public class JsonWebHandler extends AbstractWebHandler {
 		return ((JsonResponse) response).getJsonUtils().toString();
 	}
 
-	public AbstractResponse process(Request req, AbstractResponse response) {
+	public AbstractResponse process(Request req, AbstractResponse response, NettyEndpoint endpoint) {
 		boolean cont = true;
 		response = new JsonResponse();
 		JsonResponse jsonresponse = (JsonResponse) response;
@@ -33,20 +33,12 @@ public class JsonWebHandler extends AbstractWebHandler {
 
 		if (cont) {
 			jsonresponse.setSuccess(true);
-			jsonresponse = (JsonResponse) onRequest(req, jsonresponse);
+			jsonresponse = (JsonResponse) onRequest(req, jsonresponse, endpoint);
 		}
 		return jsonresponse;
 	}
 
-	public AbstractResponse onRequest(Request req, AbstractResponse response) {
-		NettyEndpoint endpoint = null;
-
-		for (String endpoints : getBackend().getEndpoints().keySet()) {
-			if (matchEndPoint(req.getUri(), endpoints, req)) {
-				endpoint = getBackend().getEndpoints().get(endpoints);
-			}
-		}
-
+	public AbstractResponse onRequest(Request req, AbstractResponse response, NettyEndpoint endpoint) {
 		JsonResponse jsonResponse = (JsonResponse) response;
 		if (endpoint != null) {
 
