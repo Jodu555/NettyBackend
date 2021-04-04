@@ -2,30 +2,27 @@ package de.Jodu555.NettyBackend.NettyBackend.netty;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.text.StringEscapeUtils;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
-import com.google.gson.Gson;
-
-import de.Jodu555.NettyBackend.NettyBackend.App;
-import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractRequest;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractResponse;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractWebHandler;
+import de.Jodu555.NettyBackend.NettyBackend.enums.RequestMehtod;
 import de.Jodu555.NettyBackend.NettyBackend.enums.ResponseType;
 import de.Jodu555.NettyBackend.NettyBackend.objects.HTMLWebHandler;
-import de.Jodu555.NettyBackend.NettyBackend.objects.JsonResponse;
 import de.Jodu555.NettyBackend.NettyBackend.objects.JsonWebHandler;
 import de.Jodu555.NettyBackend.NettyBackend.objects.NettyBackend;
 import de.Jodu555.NettyBackend.NettyBackend.objects.NettyEndpoint;
 import de.Jodu555.NettyBackend.NettyBackend.objects.Request;
-import de.Jodu555.NettyBackend.NettyBackend.utils.JsonUtils;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -33,9 +30,11 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 
 public class WebHandler extends ChannelInboundHandlerAdapter {
@@ -51,18 +50,25 @@ public class WebHandler extends ChannelInboundHandlerAdapter {
 		if (object instanceof FullHttpRequest) {
 			long income = System.currentTimeMillis();
 			FullHttpRequest fullHttpRequest = (FullHttpRequest) object;
+
 			Request req = generateRequest(ctx, fullHttpRequest);
 
 			AbstractResponse response = null;
 			AbstractWebHandler handler = null;
 
 			NettyEndpoint endpoint = null;
-			for (String path : backend.getEndpoints().keySet()) {
-				if (matchEndPoint(req, path))
-					endpoint = backend.getEndpoints().get(path);
+			
+			
+			
+			for (NettyEndpoint endpoints : backend.getEndpoints()) {
+				
+				if(matchEndPoint(req, endpoints))
+					endpoint = endpoints;
+				
 			}
 
-			if(endpoint != null) {
+			
+			if (endpoint != null) {
 				if (endpoint.getResponseType() == ResponseType.JSON) {
 					handler = new JsonWebHandler(backend);
 				}
@@ -72,7 +78,7 @@ public class WebHandler extends ChannelInboundHandlerAdapter {
 			} else {
 				handler = new JsonWebHandler(backend);
 			}
-			
+
 			String responseText = "";
 
 			if (handler != null) {
@@ -135,6 +141,26 @@ public class WebHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	private Request generateRequest(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest) {
+		RequestMehtod method = null;
+		if (fullHttpRequest.getMethod() == HttpMethod.GET) {
+			method = RequestMehtod.GET;
+		} else if (fullHttpRequest.getMethod() == HttpMethod.POST) {
+			method = RequestMehtod.POST;
+		}
+		
+		JSONObject body = null;
+		if(method == RequestMehtod.POST) {
+			ByteBuf jsonBuf = fullHttpRequest.content();
+			String bodyString = jsonBuf.toString(CharsetUtil.UTF_8);
+			bodyString = StringEscapeUtils.unescapeHtml4(bodyString);
+			JSONParser parser = new JSONParser();
+			try {
+				body = (JSONObject) parser.parse(bodyString);
+			} catch (Exception e) {
+				System.out.println("Error in Parsing json Body: " + bodyString);
+			}
+		}
+
 		QueryStringDecoder queryStringDecoder = new QueryStringDecoder(fullHttpRequest.getUri());
 		// Generate Parameters
 		Map<String, List<String>> prms = queryStringDecoder.parameters();
@@ -149,11 +175,18 @@ public class WebHandler extends ChannelInboundHandlerAdapter {
 		String ipAddress = inetaddress.getHostAddress();
 		String parseuri = fullHttpRequest.getUri();
 		String uri = parseuri.split(Pattern.quote("?"))[0];
-		Request req = new Request(ipAddress, uri, params);
+		Request req = new Request(method, ipAddress, uri, params);
+		if (method == RequestMehtod.POST)
+			req.setBody(body);
 		return req;
 	}
 
-	public boolean matchEndPoint(Request req, String match) {
+	public boolean matchEndPoint(Request req, NettyEndpoint endpoint) {
+		
+		if(req.getRequestMehtod() != endpoint.getRequestMehtod())
+			return false;
+		
+		String match = endpoint.getPath();
 		String path = req.getUri();
 		String[] pattern = match.split("/");
 		boolean output = false;

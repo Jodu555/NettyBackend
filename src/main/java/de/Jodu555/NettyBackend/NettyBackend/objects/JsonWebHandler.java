@@ -69,7 +69,7 @@ public class JsonWebHandler extends AbstractWebHandler {
 			}
 		} else {
 			jsonResponse.setSuccess(false);
-			jsonResponse.getJsonUtils().add("message", "No Endpoint found at " + req.getUri());
+			jsonResponse.getJsonUtils().add("message", "No Endpoint found at " + req.getUri() + " with Request Mehtod " + req.getRequestMehtod());
 		}
 
 		if (jsonResponse == null)

@@ -18,6 +18,7 @@ import com.google.gson.JsonParser;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractRequest;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractResponse;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AuthenticationHandler;
+import de.Jodu555.NettyBackend.NettyBackend.enums.RequestMehtod;
 import de.Jodu555.NettyBackend.NettyBackend.enums.ResponseType;
 import de.Jodu555.NettyBackend.NettyBackend.netty.NettyServer;
 import de.Jodu555.NettyBackend.NettyBackend.objects.AuthenticationResponse;
@@ -55,8 +56,7 @@ public class App {
 		this.nettyBackend = new NettyBackend(90, true, false, false);
 
 		this.nettyBackend.setResponseType(ResponseType.JSON);
-		
-		
+
 		nettyBackend.registerEndpoint("/user/{:?name}/profile/settings", new AbstractRequest() {
 
 			@Override
@@ -67,18 +67,29 @@ public class App {
 				return response;
 			}
 		});
-		
+
 		nettyBackend.registerEndpoint("/index", new AbstractRequest() {
-			
+
 			@Override
 			public AbstractResponse onRequest(Request req, AbstractResponse _response) {
-				HTMLResponse response = (HTMLResponse)_response;
-				
-				response.setResponseFile(new File("test.html"));
-				
+				JsonResponse response = (JsonResponse) _response;
+				response.setSuccess(true);
+				response.getJsonUtils().add("username", "xD");
 				return response;
 			}
-		}, ResponseType.HTML);
+		}, ResponseType.JSON);
+
+		nettyBackend.registerEndpoint(RequestMehtod.POST, "/index", new AbstractRequest() {
+
+			@Override
+			public AbstractResponse onRequest(Request req, AbstractResponse _response) {
+				JsonResponse response = (JsonResponse) _response;
+				response.setSuccess(true);
+				response.getJsonUtils().add("username", "xD");
+				response.getJsonUtils().add("body", req.getBody());
+				return response;
+			}
+		}, ResponseType.JSON);
 
 		this.nettyBackend.start();
 	}

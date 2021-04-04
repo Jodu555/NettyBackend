@@ -6,6 +6,7 @@ import java.util.HashMap;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractRequest;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractResponse;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AuthenticationHandler;
+import de.Jodu555.NettyBackend.NettyBackend.enums.RequestMehtod;
 import de.Jodu555.NettyBackend.NettyBackend.enums.ResponseType;
 import de.Jodu555.NettyBackend.NettyBackend.netty.NettyServer;
 import de.Jodu555.NettyBackend.NettyBackend.utils.JsonUtils;
@@ -19,7 +20,8 @@ public class NettyBackend {
 	private ArrayList<String> blockedAddresses = new ArrayList<String>();
 	private ArrayList<String> whitelistedAddresses = new ArrayList<String>();
 	
-	private HashMap<String, NettyEndpoint> endpoints = new HashMap<String, NettyEndpoint>();
+//	private HashMap<String, NettyEndpoint> endpoints = new HashMap<String, NettyEndpoint>();
+	private ArrayList<NettyEndpoint> endpoints = new ArrayList<NettyEndpoint>();
 	private String defaultEndpoint = "";
 	private AuthenticationHandler authenticationHandler;
 	private TokenManager tokenManager;
@@ -51,7 +53,7 @@ public class NettyBackend {
 			return;
 		}
 		this.authenticationHandler = authenticationHandler;
-		registerEndpoint("/auth", new AbstractRequest() {
+		registerEndpoint(RequestMehtod.GET, "/auth", new AbstractRequest() {
 			
 			@Override
 			public AbstractResponse onRequest(Request req, AbstractResponse response) {
@@ -85,24 +87,32 @@ public class NettyBackend {
 	}
 	
 	public void registerEndpoint(String endpoint, AbstractRequest request) {
-		abstractRegisterEndpoint(endpoint, new NettyEndpoint(request, getResponseType(), 0));
+		abstractRegisterEndpoint(endpoint, new NettyEndpoint(endpoint, RequestMehtod.GET, request, getResponseType(), 0));
+	}
+	
+	public void registerEndpoint(RequestMehtod requestMehtod, String endpoint, AbstractRequest request) {
+		abstractRegisterEndpoint(endpoint, new NettyEndpoint(endpoint, requestMehtod, request, getResponseType(), 0));
+	}
+	
+	public void registerEndpoint(RequestMehtod requestMehtod, String endpoint, AbstractRequest request, ResponseType responseType) {
+		abstractRegisterEndpoint(endpoint, new NettyEndpoint(endpoint, requestMehtod, request, responseType, 0));
 	}
 	
 	public void registerEndpoint(String endpoint, AbstractRequest request, ResponseType responseType) {
-		abstractRegisterEndpoint(endpoint, new NettyEndpoint(request, responseType, 0));
+		abstractRegisterEndpoint(endpoint, new NettyEndpoint(endpoint, RequestMehtod.GET, request, responseType, 0));
 	}
 	
-	public void registerAuthEndpoint(String endpoint, AbstractRequest request, int authorizationLevel) {
-		abstractRegisterEndpoint(endpoint, new NettyEndpoint(request, getResponseType(), authorizationLevel));
+	public void registerAuthEndpoint(RequestMehtod requestMehtod, String endpoint, AbstractRequest request, int authorizationLevel) {
+		abstractRegisterEndpoint(endpoint, new NettyEndpoint(endpoint, requestMehtod, request, getResponseType(), authorizationLevel));
 	}
 	
-	public void registerAuthEndpoint(String endpoint, AbstractRequest request, ResponseType responseType, int authorizationLevel) {
-		abstractRegisterEndpoint(endpoint, new NettyEndpoint(request, responseType, authorizationLevel));
+	public void registerAuthEndpoint(RequestMehtod requestMehtod, String endpoint, AbstractRequest request, ResponseType responseType, int authorizationLevel) {
+		abstractRegisterEndpoint(endpoint, new NettyEndpoint(endpoint, requestMehtod, request, responseType, authorizationLevel));
 	}
 	
 	private void abstractRegisterEndpoint(String path, NettyEndpoint endpoint)  {
 		System.out.println("Registered new Endpoint: " + path);
-		endpoints.put(path, endpoint);
+		endpoints.add(endpoint);
 	}
 	
 	public void setResponseType(ResponseType responseType) {
@@ -141,7 +151,7 @@ public class NettyBackend {
 		return whitelistedAddresses;
 	}
 	
-	public HashMap<String, NettyEndpoint> getEndpoints() {
+	public ArrayList<NettyEndpoint> getEndpoints() {
 		return endpoints;
 	}
 	

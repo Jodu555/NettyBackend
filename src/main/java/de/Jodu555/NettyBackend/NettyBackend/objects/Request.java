@@ -3,24 +3,38 @@ package de.Jodu555.NettyBackend.NettyBackend.objects;
 import java.util.HashMap;
 import java.util.List;
 
+import org.json.simple.JSONObject;
+
+import com.google.gson.JsonObject;
+
+import de.Jodu555.NettyBackend.NettyBackend.enums.RequestMehtod;
+
 public class Request {
 	
 	private String ip;
 	private String uri;
 	private String authId;
+	private RequestMehtod requestMehtod;
 	private HashMap<String, List<String>> parameters;
 	private HashMap<String, String> variables;
+	private JSONObject body;
 	
-	public Request(String ip, String uri, HashMap<String, List<String>> parameters) {
-		this(ip, uri, null, parameters);
+	public Request(RequestMehtod requestMehtod, String ip, String uri, HashMap<String, List<String>> parameters) {
+		this(requestMehtod, ip, uri, null, parameters);
 	}
 	
-	public Request(String ip, String uri, String authId, HashMap<String, List<String>> parameters) {
+	public Request(RequestMehtod requestMehtod, String ip, String uri, String authId, HashMap<String, List<String>> parameters) {
+		this.requestMehtod = requestMehtod;
 		this.ip = ip;
 		this.uri = uri;
 		this.authId = authId;
 		this.parameters = parameters;
 		this.variables =  new HashMap<String, String>();
+		this.body = null;
+	}
+	
+	public RequestMehtod getRequestMehtod() {
+		return requestMehtod;
 	}
 	
 	public String getIp() {
@@ -45,6 +59,14 @@ public class Request {
 	
 	public HashMap<String, String> getVariables() {
 		return variables;
+	}
+	
+	public JSONObject getBody() {
+		return body;
+	}
+	
+	public void setBody(JSONObject body) {
+		this.body = body;
 	}
 	
 }
