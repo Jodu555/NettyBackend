@@ -58,13 +58,9 @@ public class WebHandler extends ChannelInboundHandlerAdapter {
 
 			NettyEndpoint endpoint = null;
 			
-			
-			
 			for (NettyEndpoint endpoints : backend.getEndpoints()) {
-				
 				if(matchEndPoint(req, endpoints))
 					endpoint = endpoints;
-				
 			}
 
 			

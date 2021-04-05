@@ -9,44 +9,41 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.crypto.spec.PSource;
-
-import org.json.simple.JSONObject;
-
-import com.google.gson.Gson;
 
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractRequest;
+import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractResponse;
+import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractRouter;
+import de.Jodu555.NettyBackend.NettyBackend.objects.JsonResponse;
+import de.Jodu555.NettyBackend.NettyBackend.objects.Request;
+import de.Jodu555.NettyBackend.NettyBackend.objects.Router;
 import de.Jodu555.NettyBackend.NettyBackend.utils.JsonUtils;
 
 public class Testing {
 
 	public Testing() {
-		long start = System.currentTimeMillis();
-		
-		final String API_URL = "http://127.0.0.1:9090/";
-		
-		try {
-			System.out.println(" ");
-			System.out.println(" ");
-			System.out.println("Started testing");
-			
-			String authReq = get(API_URL + "auth?username=Jodu555");
-			String token = (String) new JsonUtils(authReq).get("token");
-			
-			String url = API_URL + "api/tweet?auth-token=" + token + "&tweet=" + URLEncoder.encode("Hallo ich bin ein witziger tweet");
-			System.out.println(get(url));
-			
-
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-
-		System.out.println("Test End in " + (System.currentTimeMillis() - start) + "ms");
-		System.out.println(" ");
-		System.out.println(" ");
+//		long start = System.currentTimeMillis();
+//
+//		final String API_URL = "http://127.0.0.1:9090/";
+//
+//		try {
+//			System.out.println(" ");
+//			System.out.println(" ");
+//			System.out.println("Started testing");
+//
+//			String authReq = get(API_URL + "auth?username=Jodu555");
+//			String token = (String) new JsonUtils(authReq).get("token");
+//
+//			String url = API_URL + "api/tweet?auth-token=" + token + "&tweet="
+//					+ URLEncoder.encode("Hallo ich bin ein witziger tweet");
+//			System.out.println(get(url));
+//
+//		} catch (Exception e) {
+//			// TODO: handle exception
+//		}
+//
+//		System.out.println("Test End in " + (System.currentTimeMillis() - start) + "ms");
+//		System.out.println(" ");
+//		System.out.println(" ");
 
 	}
 

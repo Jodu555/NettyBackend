@@ -17,6 +17,7 @@ import com.google.gson.JsonParser;
 
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractRequest;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractResponse;
+import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractRouter;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AuthenticationHandler;
 import de.Jodu555.NettyBackend.NettyBackend.enums.RequestMehtod;
 import de.Jodu555.NettyBackend.NettyBackend.enums.ResponseType;
@@ -26,6 +27,7 @@ import de.Jodu555.NettyBackend.NettyBackend.objects.HTMLResponse;
 import de.Jodu555.NettyBackend.NettyBackend.objects.JsonResponse;
 import de.Jodu555.NettyBackend.NettyBackend.objects.NettyBackend;
 import de.Jodu555.NettyBackend.NettyBackend.objects.Request;
+import de.Jodu555.NettyBackend.NettyBackend.objects.Router;
 import de.Jodu555.NettyBackend.NettyBackend.utils.JsonUtils;
 
 public class App {
@@ -33,7 +35,9 @@ public class App {
 	public static App instance;
 	private NettyBackend nettyBackend;
 
-	// TODO Add Validator Like: https://joi.dev/api/?v=17.4.0
+	// TODO: Add Validator Like: https://joi.dev/api/?v=17.4.0
+	// TODO: Implement Router
+	// TODO: Add Refresh Token to Aurh Part
 
 	// Link port via Apache Hosts:
 	// But install Commands before: sudo a2enmod proxy && sudo a2enmod proxy_http &&
@@ -91,7 +95,45 @@ public class App {
 			}
 		}, ResponseType.JSON);
 
+		nettyBackend.registerRouter("/auth", AuthRouter.class);
+
 		this.nettyBackend.start();
+	}
+
+	public static class AuthRouter extends AbstractRouter {
+
+		public AuthRouter() {
+			System.out.println("AuthRouter called");
+		}
+		
+		@Override
+		public void registerEndpoint(Router router) {
+
+			router.registerEndpoint("/", new AbstractRequest() {
+
+				@Override
+				public AbstractResponse onRequest(Request req, AbstractResponse _response) {
+					JsonResponse response = (JsonResponse) _response;
+
+					response.getJsonUtils().add("message", "/auth Router is Workng!");
+
+					return response;
+				}
+			});
+
+			router.registerEndpoint("/register", new AbstractRequest() {
+
+				@Override
+				public AbstractResponse onRequest(Request req, AbstractResponse _response) {
+					JsonResponse response = (JsonResponse) _response;
+
+					response.getJsonUtils().add("message", "/auth/register Rout is Workng too!");
+
+					return response;
+				}
+			});
+		}
+
 	}
 
 	public NettyBackend getNettyBackend() {
