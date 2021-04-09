@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -36,8 +37,9 @@ public class App {
 	private NettyBackend nettyBackend;
 
 	// TODO: Add Validator Like: https://joi.dev/api/?v=17.4.0
-	// TODO: Implement Router
 	// TODO: Add Refresh Token to Aurh Part
+	// TODO: Rate Limiting
+	// TODO: Speed Limiter
 
 	// Link port via Apache Hosts:
 	// But install Commands before: sudo a2enmod proxy && sudo a2enmod proxy_http &&
@@ -61,6 +63,8 @@ public class App {
 
 		this.nettyBackend.setResponseType(ResponseType.JSON);
 
+		
+		
 		nettyBackend.registerEndpoint("/user/{:?name}/profile/settings", new AbstractRequest() {
 
 			@Override

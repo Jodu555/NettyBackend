@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
@@ -89,7 +90,7 @@ public class WebHandler extends ChannelInboundHandlerAdapter {
 			// HTTP_1_0
 
 			FullHttpResponse fullHttpResponse = null;
-
+			
 			if (response.isRedirect()) {
 				fullHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FOUND);
 				fullHttpResponse.headers().set(HttpHeaders.Names.LOCATION, response.getUrl());
@@ -138,6 +139,12 @@ public class WebHandler extends ChannelInboundHandlerAdapter {
 
 	private Request generateRequest(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest) {
 		RequestMehtod method = null;
+		
+		HashMap<String, String> headers = new HashMap<String, String>();
+		for (Entry<String, String> entry : fullHttpRequest.headers().entries()) {
+			headers.put(entry.getKey(), entry.getValue());
+		}
+		
 		if (fullHttpRequest.getMethod() == HttpMethod.GET) {
 			method = RequestMehtod.GET;
 		} else if (fullHttpRequest.getMethod() == HttpMethod.POST) {
@@ -171,7 +178,7 @@ public class WebHandler extends ChannelInboundHandlerAdapter {
 		String ipAddress = inetaddress.getHostAddress();
 		String parseuri = fullHttpRequest.getUri();
 		String uri = parseuri.split(Pattern.quote("?"))[0];
-		Request req = new Request(method, ipAddress, uri, params);
+		Request req = new Request(method, ipAddress, uri, params, headers);
 		if (method == RequestMehtod.POST)
 			req.setBody(body);
 		return req;

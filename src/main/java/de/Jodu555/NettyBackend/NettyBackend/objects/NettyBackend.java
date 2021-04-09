@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import javax.swing.DebugGraphics;
 
+import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractMiddleware;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractRequest;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractResponse;
 import de.Jodu555.NettyBackend.NettyBackend.abstracts.AbstractRouter;
@@ -26,6 +27,7 @@ public class NettyBackend {
 //	private HashMap<String, NettyEndpoint> endpoints = new HashMap<String, NettyEndpoint>();
 	private ArrayList<NettyEndpoint> endpoints;
 	private ArrayList<Router> routers;
+	private ArrayList<AbstractMiddleware> middlewares;
 	private String defaultEndpoint = "";
 	private AuthenticationHandler authenticationHandler;
 	private TokenManager tokenManager;
@@ -53,6 +55,10 @@ public class NettyBackend {
 		server = new NettyServer(this, this.port);
 	}
 
+	public void use(Class<? extends AbstractMiddleware> cls) {
+		
+	}
+	
 	public void setAuthenticationHandler(AuthenticationHandler authenticationHandler) {
 		if (getResponseType() != ResponseType.JSON) {
 			System.out.println("Cant add Auth Handler without JSON response");
