@@ -63,7 +63,20 @@ public class App {
 
 		this.nettyBackend.setResponseType(ResponseType.JSON);
 
-		
+		nettyBackend.setDefaultEndpoint("/api/v1/cloud");
+
+		nettyBackend.registerEndpoint("/proxy", new AbstractRequest() {
+
+			@Override
+			public AbstractResponse onRequest(Request req, AbstractResponse _response) {
+				JsonResponse response = (JsonResponse) _response;
+				String action = req.getParameters().get("action").get(0);
+
+				System.out.println(action);
+				
+				return response;
+			}
+		});
 		
 		nettyBackend.registerEndpoint("/user/{:?name}/profile/settings", new AbstractRequest() {
 
